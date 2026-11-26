@@ -343,7 +343,7 @@ DrumPanel::DrumPanel (PulseForgeEditor& e)
     addAndMakeVisible (env);
 
     // the mutate amount is an editor setting, not a host parameter
-    mutateAmt.slider.setRange (0.0, 100.0, 1.0);
+    mutateAmt.slider.setRange (0.0, 100.0, 0.1);
     mutateAmt.slider.setValue (proc.mutateAmount * 100.0, dontSendNotification);
     mutateAmt.slider.setDoubleClickReturnValue (true, 35.0);
     mutateAmt.slider.textFromValueFunction = [] (double v) { return String (roundToInt (v)) + "%"; };
@@ -727,7 +727,7 @@ void PulseForgeEditor::paint (Graphics& g)
     g.setFont (uiFont (11.5f * sc, hintText.isNotEmpty()));
     const String left = hintText.isNotEmpty() ? hintText
                       : status.isNotEmpty() ? status
-                      : String ("Click a drum name to hear and edit it  -  drag a drum name onto a track for that row's MIDI  -  right-click for options");
+                      : String ("Click a drum name to hear and edit it  -  drag a name onto a track for its MIDI  -  Shift + drag a knob = fine");
     g.drawFittedText (left, sr.withTrimmedRight ((int) (330 * sc)).toNearestInt(), Justification::centredLeft, 1, 0.8f);
 }
 

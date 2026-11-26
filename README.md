@@ -19,6 +19,7 @@ An 8-voice synthetic drum machine (VST3). Every sound is synthesized in real tim
 - **TONE:** wave, pitch, bend (pitch sweep), bend time, decay, click.
 - **NOISE:** filter type, envelope (Exponential / Linear / Gated / Clap), cutoff, resonance, attack, decay, stereo width.
 - **OUTPUT:** tone/noise mix, drive, level, pan, velocity sensitivity, output, choke group.
+- **Knobs:** drag up/down (or left/right). Hold **Shift** while dragging or using the mouse wheel for fine adjustments. Double-click resets a knob.
 - **RANDOM** makes a new sound that still fits the drum's role. **MUTATE** nudges it by the AMOUNT knob. **RESET** goes back to the Classic kit.
 - **KITS:** 5 factory kits (Classic, EDM Punch, Techno Warehouse, 808 Style, Glitch Lab), plus save/load of your own `.pfkit`. Single drums save as `.pfdrum`. Your files go to `Documents\PulseForge`.
 - **UNDO / REDO** covers kit and pattern changes. REAPER's own undo covers single knob moves.

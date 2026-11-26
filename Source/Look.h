@@ -41,6 +41,22 @@ public:
 void setButtonStyle (juce::Button&, juce::Colour accent, bool solid = false);
 
 //==============================================================================
+// Knob drag with a real fine mode: hold Shift for 10x finer moves. Pressing or
+// releasing Shift mid-drag carries on from where the knob is (no jump).
+class FineSlider : public juce::Slider
+{
+public:
+    void mouseDown (const juce::MouseEvent&) override;
+    void mouseDrag (const juce::MouseEvent&) override;
+    void mouseWheelMove (const juce::MouseEvent&, const juce::MouseWheelDetails&) override;
+    float pixelsForFullRange = 180.0f;
+private:
+    juce::Point<float> lastPos;
+    double dragProportion = 0.0;
+    bool ownDrag = false;
+};
+
+//==============================================================================
 // Rotary knob bound to a parameter; the parameter can be swapped (selected pad changes)
 class Knob : public juce::Component, private juce::Slider::Listener
 {
@@ -54,7 +70,7 @@ public:
     void mouseExit (const juce::MouseEvent&) override { repaint(); }
     void mouseUp (const juce::MouseEvent&) override { repaint(); }
 
-    juce::Slider slider;
+    FineSlider slider;
     float uiScale = 1.0f;
 private:
     void sliderValueChanged (juce::Slider*) override { repaint(); }

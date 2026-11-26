@@ -195,13 +195,40 @@ void DeckLook::drawTextEditorOutline (Graphics& g, int w, int h, TextEditor& t)
 }
 
 //==============================================================================
+void FineSlider::mouseDown (const MouseEvent& e)
+{
+    Slider::mouseDown (e);   // starts the host gesture, handles alt-click reset and right-click
+    ownDrag = isEnabled() && ! e.mods.isPopupMenu() && ! e.mods.isAltDown();
+    lastPos = e.position;
+    dragProportion = valueToProportionOfLength (getValue());
+}
+
+void FineSlider::mouseDrag (const MouseEvent& e)
+{
+    if (! ownDrag) { Slider::mouseDrag (e); return; }
+    const float delta = (e.position.x - lastPos.x) + (lastPos.y - e.position.y);
+    lastPos = e.position;
+    const double speed = e.mods.isShiftDown() ? 0.1 : 1.0;
+    dragProportion = jlimit (0.0, 1.0, dragProportion + delta * speed / jmax (20.0f, pixelsForFullRange));
+    setValue (snapValue (proportionOfLengthToValue (dragProportion), absoluteDrag), sendNotificationSync);
+}
+
+void FineSlider::mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& w)
+{
+    if (! e.mods.isShiftDown()) { Slider::mouseWheelMove (e, w); return; }
+    auto fine = w;
+    fine.deltaX *= 0.1f;
+    fine.deltaY *= 0.1f;
+    Slider::mouseWheelMove (e, fine);
+}
+
+//==============================================================================
 Knob::Knob (AudioProcessorValueTreeState& s, const String& t) : state (s), title (t)
 {
     slider.setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
     slider.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
     slider.setRotaryParameters (MathConstants<float>::pi * 1.2f, MathConstants<float>::pi * 2.8f, true);
     slider.setMouseDragSensitivity (180);
-    slider.setVelocityModeParameters (1.0, 1, 0.0, false, ModifierKeys::shiftModifier);   // shift = fine
     addAndMakeVisible (slider);
     slider.addListener (this);
     slider.addMouseListener (this, false);
