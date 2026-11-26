@@ -131,7 +131,7 @@ private:
                      playBtn { "PLAY" }, stepsModeBtn { "STEPS" }, probModeBtn { "CHANCE" };
     DragButton dragMidiBtn { "DRAG MIDI" };
     juce::ComboBox clipBox, lengthBox, rateBox;
-    juce::ToggleButton seqToggle { "Sequencer" };
+    juce::ToggleButton seqToggle { "Play with REAPER" };
     std::array<juce::TextButton, PF::NumPatterns> patBtns;
     Knob master, swing;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> rateAtt;

@@ -12,8 +12,8 @@ An 8-voice synthetic drum machine (VST3). Every sound is synthesized in real tim
 - **Steps:** click cycles on → accent → off. Drag to paint. Right-click clears.
 - **CHANCE mode:** drag up and down on a step to set how often it plays (5–100 %).
 - **Patterns A–H.** MIDI notes 36–43 play the drums, 48–55 switch patterns live.
-- **PLAY** runs the sequencer while REAPER is stopped. When REAPER plays, the sequencer follows it.
-- **Sequencer toggle:** turn it off to play PulseForge only from MIDI.
+- **PLAY** plays the pattern any time (in sync when REAPER is playing).
+- **Play with REAPER:** on = the pattern plays whenever REAPER plays. Off = PulseForge plays only from MIDI and the PLAY button.
 
 ## Sounds
 - **TONE:** wave, pitch, bend (pitch sweep), bend time, decay, click.
@@ -29,7 +29,7 @@ An 8-voice synthetic drum machine (VST3). Every sound is synthesized in real tim
 - **...** next to it has *only outputs in use*, *each drum its own output* and *all on Out 1*.
 
 ## Drag to MIDI
-- **DRAG MIDI** → drop on a track to get the current pattern as a MIDI clip. The clip-length box sets 1–8 bars. Afterwards the sequencer switches itself off so hits don't play twice.
+- **DRAG MIDI** → drop on a track to get the current pattern as a MIDI clip. The clip-length box sets 1–8 bars. Afterwards *Play with REAPER* switches itself off so hits don't play twice; PLAY still works for auditioning.
 - **Drag a drum name** onto a track to get just that row.
 - Steps with less than 100 % chance roll the dice once when the clip is made.
 

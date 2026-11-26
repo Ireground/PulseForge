@@ -569,12 +569,12 @@ PulseForgeEditor::PulseForgeEditor (PulseForgeProcessor& p)
     dragMidiBtn.setTooltip ("Drag this onto a track to get the current pattern as a MIDI clip");
     clipBox.setTooltip ("Length of the dragged MIDI clip (the pattern repeats to fill it)");
     patMenuBtn.setTooltip ("Clear, randomize, copy patterns, load a groove");
-    playBtn.setTooltip ("Run the sequencer while REAPER is stopped (follows REAPER when it plays)");
+    playBtn.setTooltip ("Play the pattern now. Works any time, even after dragging MIDI (stays in sync when REAPER plays)");
     stepsModeBtn.setTooltip ("Edit steps: click = on > accent > off");
     probModeBtn.setTooltip ("Edit chance: drag up/down on a step to set how often it plays");
     lengthBox.setTooltip ("Pattern length");
     rateBox.setTooltip ("Step size");
-    seqToggle.setTooltip ("Sequencer on/off (off = PulseForge only plays from MIDI)");
+    seqToggle.setTooltip ("On: the pattern plays whenever REAPER plays. Off: PulseForge only plays from MIDI (and the PLAY button)");
     master.slider.setTooltip ("Master volume");
     swing.slider.setTooltip ("Swing (delays every second step)");
 
@@ -784,7 +784,7 @@ void PulseForgeEditor::resized()
         put (rateBox, 78);
         swing.setBounds (tb.removeFromLeft (bw (52)).withSizeKeepingCentre (bw (52), bw (48)));
         tb.removeFromLeft (bw (10));
-        put (seqToggle, 112);
+        put (seqToggle, 150);
         auto right = tb;
         probModeBtn.setBounds (right.removeFromRight (bw (78)).withSizeKeepingCentre (bw (78), bw (28)));
         right.removeFromRight (bw (4));
@@ -1024,7 +1024,7 @@ void PulseForgeEditor::startMidiDrag (int onlyDrum)
         if (safe->proc.param ("seqon") > 0.5f)
         {
             safe->proc.setParam ("seqon", 0.0f);
-            safe->setStatus ("MIDI clip dragged. Sequencer switched off so hits don't play twice (turn it back on any time)");
+            safe->setStatus ("MIDI clip dragged. PLAY WITH REAPER switched off so hits don't play twice - the PLAY button still works");
         }
     });
 }

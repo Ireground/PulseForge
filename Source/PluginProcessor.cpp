@@ -155,7 +155,7 @@ AudioProcessorValueTreeState::ParameterLayout PulseForgeProcessor::createLayout(
                                 A().withStringFromValueFunction (db)));
     l.add (std::make_unique<F> (ParameterID { "swing", 1 }, "Swing", NormalisableRange<float> (0.0f, 100.0f, 1.0f), 0.0f,
                                 A().withStringFromValueFunction (pct)));
-    l.add (std::make_unique<B> (ParameterID { "seqon", 1 }, "Sequencer", true));
+    l.add (std::make_unique<B> (ParameterID { "seqon", 1 }, "Play With Host", true));
     l.add (std::make_unique<C> (ParameterID { "rate", 1 }, "Step Rate", PF::rateNames(), 1));
 
     for (int d = 0; d < PF::NumDrums; ++d)
@@ -967,8 +967,6 @@ void PulseForgeProcessor::addEvent (int offset, int drum, float vel)
 
 void PulseForgeProcessor::sequence (int n)
 {
-    if (rawSeqOn->load() < 0.5f) { displayStep = -1; wasRunning = false; return; }
-
     bool hostPlaying = false;
     double bpm = 120.0, hostPpq = 0.0;
     bool havePpq = false;
@@ -981,8 +979,12 @@ void PulseForgeProcessor::sequence (int n)
         }
     if (! std::isfinite (bpm) || bpm < 20.0 || bpm > 999.0) bpm = 120.0;
 
-    const bool useHost = hostPlaying && havePpq && std::isfinite (hostPpq);
-    const bool useFree = ! useHost && internalPlay.load();
+    // "Play with REAPER" follows the host; the PLAY button always works (synced to the host
+    // when it plays, on its own clock when it is stopped)
+    const bool followHost = rawSeqOn->load() >= 0.5f || internalPlay.load();
+    const bool hostRunning = hostPlaying && havePpq && std::isfinite (hostPpq);
+    const bool useHost = hostRunning && followHost;
+    const bool useFree = ! hostRunning && internalPlay.load();
     if (! useHost && ! useFree) { displayStep = -1; wasRunning = false; return; }
 
     const double spb = sr * 60.0 / bpm;
