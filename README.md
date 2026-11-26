@@ -11,7 +11,7 @@ An 8-voice synthetic drum machine (VST3). Every sound is synthesized in real tim
 - **Click a drum name** to hear it and edit its sound below. Double-click the big name to rename it.
 - **Steps:** click cycles on → accent → off. Drag to paint. Right-click clears.
 - **CHANCE mode:** drag up and down on a step to set how often it plays (5–100 %).
-- **Patterns A–H.** MIDI notes C2–G2 (48–55) switch patterns live. C1–G1 (36–43) play the drums.
+- **Patterns A–H.** MIDI notes 36–43 play the drums, 48–55 switch patterns live.
 - **PLAY** runs the sequencer while REAPER is stopped. When REAPER plays, the sequencer follows it.
 - **Sequencer toggle:** turn it off to play PulseForge only from MIDI.
 

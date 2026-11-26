@@ -8,8 +8,8 @@
 namespace PF
 {
     constexpr int NumDrums = 8, MaxSteps = 32, NumPatterns = 8, NumOuts = 8;
-    constexpr int DrumNote = 36;      // C1: drum 1 = 36 ... drum 8 = 43
-    constexpr int PatternNote = 48;   // C2: pattern A = 48 ... pattern H = 55
+    constexpr int DrumNote = 36;      // drum 1 = 36 ... drum 8 = 43
+    constexpr int PatternNote = 48;   // pattern A = 48 ... pattern H = 55
 
     juce::String pid (int drum, const char* name);   // "d1_pitch" (drum is 0-based, id is 1-based)
 

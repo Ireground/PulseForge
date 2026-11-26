@@ -333,7 +333,7 @@ DrumPanel::DrumPanel (PulseForgeEditor& e)
     : ed (e), proc (e.proc),
       pitch (proc.apvts, "PITCH"), bend (proc.apvts, "BEND"), btime (proc.apvts, "BEND TIME"), odecay (proc.apvts, "DECAY"), click (proc.apvts, "CLICK"),
       cutoff (proc.apvts, "CUTOFF"), reso (proc.apvts, "RESO"), nattack (proc.apvts, "ATTACK"), ndecay (proc.apvts, "DECAY"), stereo (proc.apvts, "STEREO"),
-      mix (proc.apvts, "TONE/NOISE"), drive (proc.apvts, "DRIVE"), level (proc.apvts, "LEVEL"), pan (proc.apvts, "PAN"), vel (proc.apvts, "VELOCITY"),
+      mix (proc.apvts, "NOISE MIX"), drive (proc.apvts, "DRIVE"), level (proc.apvts, "LEVEL"), pan (proc.apvts, "PAN"), vel (proc.apvts, "VELOCITY"),
       mutateAmt (proc.apvts, "AMOUNT"), env (proc)
 {
     for (auto* k : { &pitch, &bend, &btime, &odecay, &click, &cutoff, &reso, &nattack, &ndecay, &stereo, &mix, &drive, &level, &pan, &vel })
@@ -449,9 +449,23 @@ void DrumPanel::resized()
         head.removeFromLeft ((int) (58 * sc));   // section title
         const int cw = combos.size() > 0 ? head.getWidth() / (int) combos.size() : 0;
         for (auto* c : combos) c->setBounds (head.removeFromLeft (cw).reduced ((int) (2 * sc), 0));
-        a.removeFromTop ((int) (6 * sc));
-        const int kw = a.getWidth() / (int) knobs.size();
-        for (auto* k : knobs) k->setBounds (a.removeFromLeft (kw).withSizeKeepingCentre (kw, jmin (a.getHeight(), (int) (kw * 1.45f))));
+        a.removeFromTop ((int) (4 * sc));
+        // two rows: 3 knobs on top, the rest centred below
+        const int rowH = a.getHeight() / 2;
+        const int kw = jmin (a.getWidth() / 3, (int) (rowH / 1.15f));
+        auto top = a.removeFromTop (rowH), bottom = a;
+        int i = 0;
+        const int n = (int) knobs.size();
+        for (auto* k : knobs)
+        {
+            const bool first = i < 3;
+            auto row = first ? top : bottom;
+            const int count = first ? jmin (3, n) : n - 3;
+            const int slot = first ? i : i - 3;
+            const int x = row.getCentreX() - (count * kw) / 2 + slot * kw;
+            k->setBounds (Rectangle<int> (x, row.getY(), kw, row.getHeight()).withSizeKeepingCentre (kw, jmin (row.getHeight(), (int) (kw * 1.15f))));
+            ++i;
+        }
     };
     layout (toneArea, { &wave }, { &pitch, &bend, &btime, &odecay, &click });
     layout (noiseArea, { &fmode, &nshape }, { &cutoff, &reso, &nattack, &ndecay, &stereo });
@@ -476,13 +490,14 @@ void DrumPanel::paint (Graphics& g)
     g.setFont (uiFont (13.0f * sc, true));
     g.drawText (String (drum + 1), badge, Justification::centred);
     t.removeFromLeft (10.0f * sc);
+    auto nameRow = t.withWidth (360.0f * sc).reduced (0, 4.0f * sc);
+    auto subRow = nameRow.removeFromBottom (13.0f * sc);
     g.setColour (Pal::text);
-    g.setFont (uiFont (20.0f * sc, true));
-    g.drawText (proc.getDrumName (drum), t.withWidth (260.0f * sc), Justification::centredLeft);
+    g.setFont (uiFont (19.0f * sc, true));
+    g.drawText (proc.getDrumName (drum), nameRow, Justification::centredLeft);
     g.setColour (Pal::dim);
     g.setFont (uiFont (10.0f * sc));
-    g.drawText ("MIDI note " + MidiMessage::getMidiNoteName (PF::DrumNote + drum, true, true, 4) + "  -  double-click the name to rename",
-                t.withTrimmedLeft (0).withTrimmedTop (30.0f * sc).withWidth (340.0f * sc), Justification::topLeft);
+    g.drawText ("MIDI note " + String (PF::DrumNote + drum) + "  -  double-click the name to rename", subRow, Justification::centredLeft);
 
     auto section = [&] (Rectangle<int> a, const String& title)
     {
@@ -528,8 +543,7 @@ PulseForgeEditor::PulseForgeEditor (PulseForgeProcessor& p)
     {
         auto& b = patBtns[(size_t) i];
         b.setButtonText (String::charToString ((juce_wchar) ('A' + i)));
-        b.setTooltip ("Pattern " + b.getButtonText() + " (MIDI note " + MidiMessage::getMidiNoteName (PF::PatternNote + i, true, true, 4)
-                      + " switches to it live)");
+        b.setTooltip ("Pattern " + b.getButtonText() + " (MIDI note " + String (PF::PatternNote + i) + " switches to it live)");
         setButtonStyle (b, Pal::blue);
         b.onClick = [this, i]
         {
@@ -708,13 +722,13 @@ void PulseForgeEditor::paint (Graphics& g)
     auto sr = s.reduced (12 * sc, 0);
     g.setFont (uiFont (11.0f * sc, true));
     g.setColour (Pal::dim);
-    g.drawText ("C1-G1 play the drums   C2-G2 switch patterns", sr, Justification::centredRight);
+    g.drawText ("MIDI notes 36-43 play the drums   48-55 switch patterns", sr, Justification::centredRight);
     g.setColour (hintText.isNotEmpty() || status.isNotEmpty() ? Pal::text : Pal::dim);
     g.setFont (uiFont (11.5f * sc, hintText.isNotEmpty()));
     const String left = hintText.isNotEmpty() ? hintText
                       : status.isNotEmpty() ? status
                       : String ("Click a drum name to hear and edit it  -  drag a drum name onto a track for that row's MIDI  -  right-click for options");
-    g.drawFittedText (left, sr.withTrimmedRight ((int) (300 * sc)).toNearestInt(), Justification::centredLeft, 1, 0.8f);
+    g.drawFittedText (left, sr.withTrimmedRight ((int) (330 * sc)).toNearestInt(), Justification::centredLeft, 1, 0.8f);
 }
 
 void PulseForgeEditor::resized()

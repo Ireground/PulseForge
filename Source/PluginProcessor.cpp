@@ -784,7 +784,8 @@ void PulseForgeProcessor::updateDrumParams()
         p.muted = rp (d, RMute) > 0.5f;
         p.velSens = jlimit (0.0f, 1.0f, rp (d, RVelSens) * 0.01f);
 
-        const float g = p.muted ? 0.0f : dbToGain (rp (d, RLevel));
+        // -8 dB of built-in headroom: a single drum peaks around -8 dBFS, a busy pattern just under 0 dBFS
+        const float g = p.muted ? 0.0f : dbToGain (rp (d, RLevel)) * 0.4f;
         const float pan = jlimit (-1.0f, 1.0f, rp (d, RPan) * 0.01f);
         const float a = (pan + 1.0f) * MathConstants<float>::pi * 0.25f;
         p.gainL = g * std::cos (a) * MathConstants<float>::sqrt2;
@@ -1044,7 +1045,7 @@ void PulseForgeProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& 
 
     numEvents = 0;
 
-    // MIDI in: C1-G1 play the drums, C2-G2 switch patterns
+    // MIDI in: notes 36-43 play the drums, 48-55 switch patterns
     for (const auto m : midi)
     {
         const auto msg = m.getMessage();
