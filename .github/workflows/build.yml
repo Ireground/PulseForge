@@ -1,0 +1,47 @@
+name: Build VST3
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -A x64
+
+      - name: Build
+        run: cmake --build build --config Release --target PulseForge_VST3 --parallel
+
+      - name: Upload VST3
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseForge-VST3-Windows
+          path: build/PulseForge_artefacts/Release/VST3/PulseForge.vst3
+
+      # Crash test: pluginval loads the plugin like a DAW would and stress-tests it
+      # (odd buffer sizes and sample rates, random parameter changes, saving and
+      # reloading state, opening the editor...). The plugin is uploaded first,
+      # so it can still be downloaded; a red X on the run means pluginval found a problem.
+      - name: Download pluginval
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip -OutFile pluginval.zip
+          Expand-Archive pluginval.zip -DestinationPath pluginval
+
+      - name: Run pluginval
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path pluginval-log | Out-Null
+          .\pluginval\pluginval.exe --strictness-level 5 --validate-in-process --timeout-ms 600000 --output-dir pluginval-log "build/PulseForge_artefacts/Release/VST3/PulseForge.vst3"
+          if ($LASTEXITCODE -ne 0) { Write-Error "pluginval found a problem - see the pluginval-log artifact"; exit 1 }
+
+      - name: Upload pluginval log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pluginval-log
+          path: pluginval-log
